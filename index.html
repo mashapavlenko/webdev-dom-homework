@@ -65,7 +65,45 @@
 
   <script>
     "use strict";
-    // Код писать здесь
+    const nameEl = document.querySelector(".add-form-name");
+    const textEl = document.querySelector(".add-form-text");
+    const buttonEl = document.querySelector(".add-form-button");
+
+    const commentsEl = document.querySelector(".comments");
+
+    buttonEl.addEventListener('click', function (e) {
+      const date = new Date();
+      const formattedDate = 
+      `${date.getDate().toString().padStart(2,
+         '0')}.${(date.getMonth() + 1).toString().padStart(2,
+           '0')}.${date.getFullYear().toString().slice(-2)}
+           ${date.getHours().toString().padStart(2, 
+            '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+      if (nameEl.value === "" || textEl.value === "") {
+        return;
+      };
+      const newComment = `
+      <li class="comment">
+          <div class="comment-header">
+            <div>${nameEl.value}</div>
+            <div>${formattedDate}</div>
+          </div>
+          <div class="comment-body">
+            <div class="comment-text">
+            ${textEl.value}
+            </div>
+          </div>
+          <div class="comment-footer">
+            <div class="likes">
+              <span class="likes-counter">0</span>
+              <button class="like-button"></button>
+            </div>
+          </div>
+        </li>
+      `
+      commentsEl.innerHTML += newComment;
+    });
+    
     console.log("It works!");
   </script>
 </html>
