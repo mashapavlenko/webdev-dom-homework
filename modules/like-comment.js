@@ -1,3 +1,10 @@
+function delay(interval = 300) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve()
+        }, interval)
+    })
+}
 export function addLikeListeners(comments, commentsEl, onChange) {
     const likeButtons = commentsEl.querySelectorAll('.like-button')
 
@@ -8,15 +15,22 @@ export function addLikeListeners(comments, commentsEl, onChange) {
             const index = likeButton.dataset.index
             const comment = comments[index]
 
-            comment.isLiked = !comment.isLiked
-
-            if (comment.isLiked === true) {
-                comment.likes += 1
-            } else {
-                comment.likes -= 1
+            if (comment.isLikeLoading) {
+                return
             }
-
+            comment.isLikeLoading = true
             onChange()
+
+            delay(2000).then(() => {
+                comment.likes = comment.isLiked
+                    ? comment.likes - 1
+                    : comment.likes + 1
+
+                comment.isLiked = !comment.isLiked
+                comment.isLikeLoading = false
+
+                onChange()
+            })
         })
     }
 }
