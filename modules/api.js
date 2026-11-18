@@ -11,65 +11,53 @@ function formatDate(dateString) {
     return `${day}.${month}.${year} ${hours}:${minutes}`
 }
 export function fetchComments(onSuccess) {
-    const fetchPromise = fetch(API_URL, {
+    return fetch(API_URL, {
         method: 'GET',
     })
-    fetchPromise
         .then((response) => {
             if (!response.ok) {
                 throw new Error('Ошибка отправки комментариев')
             }
-
-            const jsonPromise = response.json()
-            jsonPromise
-                .then((responseData) => {
-                    const newComments = responseData.comments.map((comment) => {
-                        return {
-                            name: comment.author.name,
-                            text: comment.text,
-                            likes: comment.likes,
-                            isLiked: comment.isLiked,
-                            date: formatDate(comment.date),
-                        }
-                    })
-                    onSuccess(newComments)
-                })
-                .catch((error) => {
-                    console.log(error)
-                })
+            return response.json()
+        })
+        .then((responseData) => {
+            const newComments = responseData.comments.map((comment) => {
+                return {
+                    name: comment.author.name,
+                    text: comment.text,
+                    likes: comment.likes,
+                    isLiked: comment.isLiked,
+                    date: formatDate(comment.date),
+                }
+            })
+            onSuccess(newComments)
         })
         .catch((error) => {
             console.log(error)
+            throw error
         })
 }
-
 export function postComment(name, text, onSuccess) {
-    const fetchPromise = fetch(API_URL, {
+    return fetch(API_URL, {
         method: 'POST',
         body: JSON.stringify({
             name: name,
             text: text,
         }),
     })
-
-    fetchPromise
         .then((response) => {
-            const jsonPromise = response.json()
+            if (!response.ok) {
+                throw new Error('Ошибка отправки комментария')
+            }
 
-            jsonPromise
-                .then((data) => {
-                    console.log('Ответ сервера:', data)
-
-                    if (!response.ok) {
-                        throw new Error('Ошибка отправки комментария')
-                    }
-                    onSuccess()
-                })
-                .catch((error) => {
-                    console.log(error)
-                })
+            return response.json()
+        })
+        .then((data) => {
+            console.log('Ответ сервера:', data)
+            return onSuccess()
         })
         .catch((error) => {
             console.log(error)
+            throw error
         })
 }

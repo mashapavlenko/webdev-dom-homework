@@ -4,12 +4,12 @@ import { addReplyListeners } from './modules/reply-comment.js'
 import { addLikeListeners } from './modules/like-comment.js'
 import { addCommentListener } from './modules/add-comment.js'
 import { fetchComments } from './modules/api.js'
-import { postComment } from './modules/api.js'
 
 const nameEl = document.querySelector('.add-form-name')
 const textEl = document.querySelector('.add-form-text')
 const buttonEl = document.querySelector('.add-form-button')
 const commentsEl = document.querySelector('.comments')
+const loadingElement = document.querySelector('.comments-loading')
 
 function updateComments() {
     renderComments(comments, commentsEl)
@@ -21,5 +21,12 @@ fetchComments((newComments) => {
     comments.splice(0, comments.length, ...newComments)
     updateComments()
 })
+    .then(() => {
+        loadingElement.classList.add('hidden')
+    })
+    .catch((error) => {
+        console.log(error)
+        loadingElement.textContent = 'Не удалось загрузить комментарии'
+    })
 
 addCommentListener(comments, nameEl, textEl, buttonEl, updateComments)
