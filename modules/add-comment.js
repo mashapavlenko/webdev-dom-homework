@@ -1,5 +1,8 @@
 import { escapeHtml } from './escape-html.js'
-
+import { postComment, fetchComments } from './api.js'
+const formElement = document.querySelector('.add-form')
+const loadingElement = document.querySelector('.add-form-loading')
+let isLoading = false
 export function addCommentListener(
     comments,
     nameEl,
@@ -8,32 +11,42 @@ export function addCommentListener(
     onChange,
 ) {
     buttonEl.addEventListener('click', function () {
-        const date = new Date()
-
-        const formattedDate =
-            `${date.getDate().toString().padStart(2, '0')}.` +
-            `${(date.getMonth() + 1).toString().padStart(2, '0')}.` +
-            `${date.getFullYear().toString().slice(-2)} ` +
-            `${date.getHours().toString().padStart(2, '0')}:` +
-            `${date.getMinutes().toString().padStart(2, '0')}`
-
+        if (isLoading) {
+            return
+        }
         if (nameEl.value.trim() === '' || textEl.value.trim() === '') {
             return
         }
+        isLoading = true
+        formElement.classList.add('hidden')
+        loadingElement.classList.remove('hidden')
 
-        const newComment = {
-            name: escapeHtml(nameEl.value.trim()),
-            text: escapeHtml(textEl.value.trim()),
-            likes: 0,
-            isLiked: false,
-            date: formattedDate,
-        }
+        postComment(
+            escapeHtml(nameEl.value.trim()),
+            escapeHtml(textEl.value.trim()),
+            () => {
+                return fetchComments((newComments) => {
+                    comments.splice(0, comments.length, ...newComments)
+                    onChange()
 
-        comments.push(newComment)
+                    nameEl.value = ''
+                    textEl.value = ''
+                })
+            },
+        )
+            .then(() => {
+                isLoading = false
 
-        onChange()
+                formElement.classList.remove('hidden')
+                loadingElement.classList.add('hidden')
+            })
+            .catch((error) => {
+                console.log(error)
 
-        nameEl.value = ''
-        textEl.value = ''
+                isLoading = false
+
+                formElement.classList.remove('hidden')
+                loadingElement.classList.add('hidden')
+            })
     })
 }
