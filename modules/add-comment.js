@@ -14,7 +14,8 @@ export function addCommentListener(
         if (isLoading) {
             return
         }
-        if (nameEl.value.trim() === '' || textEl.value.trim() === '') {
+        if (nameEl.value.trim().length < 3 || textEl.value.trim().length < 3) {
+            alert('Имя и комментарий должны быть не короче 3 символов')
             return
         }
         isLoading = true
