@@ -15,8 +15,11 @@ export function fetchComments(onSuccess) {
         method: 'GET',
     })
         .then((response) => {
+            if (response.status === 500) {
+                throw new Error('Ошибка сервера')
+            }
             if (!response.ok) {
-                throw new Error('Ошибка отправки комментариев')
+                throw new Error('Неизвестная ошибка')
             }
             return response.json()
         })
@@ -33,6 +36,12 @@ export function fetchComments(onSuccess) {
             onSuccess(newComments)
         })
         .catch((error) => {
+            if (error.message === 'Ошибка сервера') {
+                alert('Сервер сломался, попробуй позже')
+            }
+            if (error.name === 'TypeError') {
+                alert('Кажется, у вас сломался интернет, попробуйте позже')
+            }
             console.log(error)
             throw error
         })
@@ -46,10 +55,15 @@ export function postComment(name, text, onSuccess) {
         }),
     })
         .then((response) => {
-            if (!response.ok) {
-                throw new Error('Ошибка отправки комментария')
+            if (response.status === 500) {
+                throw new Error('Ошибка сервера')
             }
-
+            if (response.status === 400) {
+                throw new Error('Короткий комментарий')
+            }
+            if (!response.ok) {
+                throw new Error('Неизвестная ошибка')
+            }
             return response.json()
         })
         .then((data) => {
@@ -57,6 +71,15 @@ export function postComment(name, text, onSuccess) {
             return onSuccess()
         })
         .catch((error) => {
+            if (error.message === 'Короткий комментарий') {
+                alert('Имя и комментарий должны быть не короче 3 символов')
+            }
+            if (error.message === 'Ошибка сервера') {
+                alert('Сервер сломался, попробуй позже')
+            }
+            if (error.name === 'TypeError') {
+                alert('Кажется, у вас сломался интернет, попробуйте позже')
+            }
             console.log(error)
             throw error
         })
